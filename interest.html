@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snowboard lessons with Aaron Lin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: one narrow column like a lift-ticket stub — header band with ridge line, then numbered form sections. */
+:root {
+  --bg: #eef2f6; --surface: #ffffff; --ink: #0f1e2e; --muted: #5a6b7d; --line: #d3dce5;
+  --accent: #d9480f; --accent-ink: #ffffff; --soft: #e4ebf2; --band: #0f1e2e; --band-ink: #eaf1f8;
+  --green: #2b8a3e; --blue: #1c64d1; --black: #0f1e2e; --error: #c92a2a;
+  --display: "Barlow Condensed", "Noto Sans TC", "Arial Narrow", Arial, sans-serif;
+  --body: "Figtree", "Noto Sans TC", system-ui, -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b141d; --surface: #121f2c; --ink: #e8eef4; --muted: #93a4b5; --line: #253545;
+    --accent: #ff7a3d; --accent-ink: #1a0b03; --soft: #1a2a39; --band: #07101a; --band-ink: #e8eef4;
+    --green: #51cf66; --blue: #4d94ff; --black: #e8eef4; --error: #ff8787; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b141d; --surface: #121f2c; --ink: #e8eef4; --muted: #93a4b5; --line: #253545;
+  --accent: #ff7a3d; --accent-ink: #1a0b03; --soft: #1a2a39; --band: #07101a; --band-ink: #e8eef4;
+  --green: #51cf66; --blue: #4d94ff; --black: #e8eef4; --error: #ff8787; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+html[lang="zh-Hant"] h1 { letter-spacing: .04em; }
+
+.band { background: var(--band); color: var(--band-ink); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.band-inner { max-width: 640px; margin: 0 auto; padding-block: 18px 0; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 22px; }
+.eyebrow { min-width: 0; font: 600 13px/1.2 var(--body); letter-spacing: .12em; text-transform: uppercase; opacity: .75; margin: 0; }
+.langs { display: inline-flex; border: 1px solid color-mix(in srgb, var(--band-ink) 35%, transparent); border-radius: 999px; padding: 3px; flex: none; }
+.langs button { border: 0; background: transparent; color: var(--band-ink); font: 600 14px/1 var(--body); padding: 7px 13px; border-radius: 999px; cursor: pointer; }
+.langs button[aria-pressed="true"] { background: var(--band-ink); color: var(--band); }
+h1 { font: 700 clamp(40px, 9vw, 60px)/.98 var(--display); text-transform: uppercase; margin: 0; text-wrap: balance; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 14px 0 0; font-size: 15px; opacity: .9; }
+.facts b { font-weight: 600; }
+.ridge { display: block; width: 100%; height: 46px; margin-top: 22px; }
+.ridge path { fill: var(--bg); }
+.band { position: relative; overflow: hidden; }
+.band-inner { position: relative; z-index: 1; }
+.scene { display: block; position: relative; height: clamp(108px, 22vw, 150px); margin-top: 8px;
+  margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); width: calc(100% + max(16px, env(safe-area-inset-left, 0px)) + max(16px, env(safe-area-inset-right, 0px))); }
+#form { width: 100%; }
+.scene .far { fill: color-mix(in srgb, var(--band-ink) 12%, var(--band)); }
+.scene .cap { fill: color-mix(in srgb, var(--band-ink) 72%, var(--band)); }
+.scene .mid { fill: color-mix(in srgb, var(--band-ink) 22%, var(--band)); }
+.scene .tree { fill: color-mix(in srgb, #2b8a3e 40%, var(--band)); }
+.scene .near { fill: var(--bg); }
+.scene .trail { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
+.scene .spray { fill: var(--accent); opacity: .55; }
+.scene .board { fill: var(--accent); }
+.flakes { position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,.5) 1.2px, transparent 1.7px), radial-gradient(circle, rgba(255,255,255,.3) 1px, transparent 1.5px);
+  background-size: 96px 96px, 57px 57px; background-position: 0 0, 23px 31px; }
+@media (prefers-reduced-motion: no-preference) {
+  .flakes { animation: snowfall 16s linear infinite; }
+  @keyframes snowfall { to { background-position: 32px 96px, 46px 145px; } }
+}
+
+main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 4px 56px; }
+.wrap { max-width: 640px; margin: 0 auto; display: grid; gap: 30px; }
+.demo { background: var(--soft); border: 1px dashed var(--line); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: var(--muted); margin: 0; }
+
+section { display: grid; gap: 14px; }
+h2 { font: 700 26px/1.05 var(--display); text-transform: uppercase; letter-spacing: .02em; margin: 0; display: flex; align-items: baseline; gap: 10px; }
+h2 .n { font: 600 13px/1 var(--body); letter-spacing: .1em; color: var(--accent); }
+.hint { margin: -6px 0 0; color: var(--muted); font-size: 14px; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+.field { display: grid; gap: 6px; min-width: 0; }
+label, .label { font-weight: 600; font-size: 14px; }
+.opt { font-weight: 400; color: var(--muted); }
+[data-req]::after { content: " *"; color: var(--accent); font-weight: 700; }
+.reqnote { margin: 0; font-size: 13px; color: var(--muted); }
+input, select, textarea {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line);
+  border-radius: 10px; padding: 11px 12px; width: 100%; min-width: 0;
+}
+textarea { min-height: 84px; resize: vertical; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 1px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--accent); }
+
+/* option cards: riding level, lesson size, mountain */
+.choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (max-width: 420px) { .choices { grid-template-columns: 1fr; } }
+.choice { position: relative; min-width: 0; }
+.choice input { position: absolute; opacity: 0; pointer-events: none; }
+.choice > span {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid var(--line);
+  border-radius: 12px; background: var(--surface); cursor: pointer; font-weight: 600; font-size: 15px; height: 100%;
+}
+.choice small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; line-height: 1.35; }
+.choice input:checked + span { border-color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.choice input:focus-visible + span { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 1px; }
+.sym { flex: none; width: 22px; height: 22px; display: grid; place-items: center; }
+.sym svg { width: 22px; height: 22px; }
+.choice > span > span { min-width: 0; overflow-wrap: anywhere; }
+.size > span { flex-direction: column; align-items: flex-start; gap: 8px; }
+.price { font: 700 24px/1 var(--display); font-variant-numeric: tabular-nums; }
+.price small { display: inline; margin-left: 4px; font: 400 13px/1.3 var(--body); color: var(--muted); }
+.price small.pp { display: block; margin: 4px 0 0; }
+.price.tbd { font: 400 13px/1.35 var(--body); color: var(--muted); }
+.intro { margin: 16px 0 0; max-width: 34em; font-size: 16px; line-height: 1.55; opacity: .92; }
+
+/* calendar */
+.cal { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-head strong { font: 700 22px/1 var(--display); text-transform: uppercase; letter-spacing: .03em; }
+.nav { width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-size: 18px; cursor: pointer; }
+.nav:disabled { opacity: .35; cursor: default; }
+.dow, .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.dow span { font-size: 12px; font-weight: 600; letter-spacing: .08em; color: var(--muted); padding: 4px 0; }
+.day { aspect-ratio: 1; max-width: 100%; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: 500 15px/1 var(--body); font-variant-numeric: tabular-nums; position: relative; opacity: .55; }
+.day.open { opacity: 1; color: var(--ink); background: var(--soft); cursor: pointer; font-weight: 700; }
+.day.open::after { content: ""; position: absolute; left: 50%; bottom: 18%; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); transform: translateX(-50%); }
+.day.sel { background: var(--accent); color: var(--accent-ink); }
+.day.sel::after { background: var(--accent-ink); }
+.times { display: grid; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.times-title { font-weight: 600; font-size: 14px; }
+.time { display: flex; justify-content: space-between; align-items: center; gap: 10px; text-align: left; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: 600 15px/1.3 var(--body); cursor: pointer; font-variant-numeric: tabular-nums; }
+.time small { font-weight: 400; color: var(--muted); text-align: right; min-width: 0; overflow-wrap: anywhere; }
+.time[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.empty { color: var(--muted); font-size: 15px; padding: 18px 4px; text-align: center; }
+.choices3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 520px) { .choices3 { grid-template-columns: 1fr; } }
+.lead { margin: 0; font-size: 15px; background: var(--soft); border-radius: 12px; padding: 14px 16px; }
+.demo a { color: var(--ink); font-weight: 600; }
+.fixed { margin: 0; font-size: 15px; background: var(--soft); border-radius: 10px; padding: 10px 14px; }
+
+/* deposit */
+.pay-box { background: var(--soft); border-radius: 12px; padding: 16px; display: grid; gap: 10px; font-size: 15px; min-width: 0; }
+.pay-box .note { border-top: 1px solid var(--line); padding-top: 10px; font-size: 14px; }
+.pay { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.pay code { font: 700 26px/1 var(--display); letter-spacing: .04em; user-select: all; font-variant-numeric: tabular-nums; }
+.copy { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 7px 12px; font: 600 14px var(--body); cursor: pointer; }
+.upload { border: 1.5px dashed var(--line); border-radius: 12px; background: var(--surface); padding: 14px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.upload img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+.upload .fname { min-width: 0; flex: 1; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.upload.has { border-style: solid; border-color: var(--accent); }
+.pick { border: 0; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 11px 16px; font: 600 15px var(--body); cursor: pointer; }
+#shot { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+.submit { font: 700 22px/1 var(--display); text-transform: uppercase; letter-spacing: .05em; padding: 17px; border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); cursor: pointer; width: 100%; }
+.submit:disabled { opacity: .55; cursor: default; }
+.err { color: var(--error); font-weight: 600; font-size: 14px; margin: 0; }
+.picked { font-size: 14px; color: var(--muted); margin: 0; text-align: center; }
+
+/* done */
+.done { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 24px; display: grid; gap: 16px; }
+.done h2 { font-size: 34px; }
+.ticket { border: 1.5px dashed var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; margin: 0; font-variant-numeric: tabular-nums; }
+.ticket div { display: flex; gap: 12px; } .ticket dt { color: var(--muted); width: 72px; flex: none; } .ticket dd { margin: 0; font-weight: 600; min-width: 0; }
+.modal { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: color-mix(in srgb, var(--band) 60%, transparent);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.modal-card { background: var(--surface); color: var(--ink); border-radius: 16px; padding: 22px; max-width: 420px; width: 100%; display: grid; gap: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+.modal-card h3 { font: 700 26px/1.05 var(--display); text-transform: uppercase; margin: 0; }
+.modal-card p { margin: 0; font-size: 15px; }
+.modal-btns { display: grid; gap: 8px; }
+.btn-main { border: 0; border-radius: 10px; padding: 13px; background: var(--accent); color: var(--accent-ink); font: 700 16px var(--body); cursor: pointer; }
+.btn-ghost { border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; background: var(--surface); color: var(--ink); font: 600 15px var(--body); cursor: pointer; }
+.contact { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 22px; }
+.contact h2 { font-size: 28px; }
+.contact p { margin: 0; font-size: 15px; }
+.guide { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; }
+.contact .tip { font-size: 13px; color: var(--muted); }
+.qr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.qr { margin: 0; display: grid; gap: 8px; justify-items: center; text-align: center; min-width: 0; }
+.qr img { width: 100%; max-width: 200px; aspect-ratio: 1; border-radius: 12px; background: #fff; border: 1px solid var(--line); }
+.qr figcaption { display: grid; gap: 2px; font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
+.qr figcaption b { font-size: 15px; }
+.qr a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.qr a:hover { text-decoration: underline; }
+.qr span { color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .day, .time, .choice > span { transition: background .15s, box-shadow .15s, border-color .15s; } }
+</style>
+</head>
+<body data-mode="interest">
+<header class="band">
+  <div class="flakes" aria-hidden="true"></div>
+  <div class="band-inner">
+    <div class="topbar">
+      <p class="eyebrow" data-t="eyebrow">Private lessons with Aaron Lin</p>
+      <div class="langs" role="group" aria-label="Language">
+        <button type="button" id="ui-en" data-ui="en">EN</button>
+        <button type="button" id="ui-zh" data-ui="zh">中文</button>
+      </div>
+    </div>
+    <h1 data-t="title">Book a snowboard lesson</h1>
+    <p class="intro" data-t="intro"></p>
+    <div class="facts">
+      <span data-t="fact1">2-hour lessons</span>
+      <span>Crystal Mountain · Summit at Snoqualmie</span>
+      <span class="book-only" data-t="fact3">$30 deposit to book</span>
+    </div>
+  </div>
+  <svg class="scene" viewBox="0 0 1280 132" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <path class="far" d="M0 132 V78 L46 62 L92 74 L150 30 L198 64 L238 52 L290 76 L344 38 L394 68 L432 58 L484 18 L534 60 L578 48 L640 72 L700 54 L748 66 L808 26 L858 60 L902 46 L950 70 L1008 34 L1060 64 L1104 52 L1160 22 L1214 58 L1280 78 V132 Z"/>
+    <path class="cap" d="M150 30 L135 42 L143 44 L150 39 L157 45 L167 42 Z M344 38 L330 48 L338 50 L345 45 L352 51 L361 48 Z M484 18 L466 31 L475 34 L483 27 L491 35 L502 32 Z M808 26 L793 38 L801 40 L808 35 L815 41 L825 38 Z M1008 34 L994 44 L1002 46 L1009 41 L1016 47 L1025 44 Z M1160 22 L1143 35 L1152 37 L1160 31 L1168 38 L1179 35 Z"/>
+    <path class="mid" d="M0 132 V96 Q70 86 140 96 T290 92 Q360 80 430 92 T640 92 Q720 82 800 94 T960 90 Q1040 80 1120 92 T1280 96 V132 Z"/>
+    <path class="tree" d="M44 96 l7 -15 l7 15 Z M58 99 l6 -13 l6 13 Z M232 93 l7 -15 l7 15 Z M246 95 l5 -11 l5 11 Z M396 90 l6 -13 l6 13 Z M520 92 l7 -16 l7 16 Z M535 94 l6 -13 l6 13 Z M736 90 l7 -15 l7 15 Z M751 93 l5 -11 l5 11 Z M985 88 l7 -16 l7 16 Z M1000 91 l6 -13 l6 13 Z M1190 92 l6 -13 l6 13 Z"/>
+    <path class="near" d="M0 132 V118 C200 122 400 104 600 112 C760 118 900 98 1080 104 C1160 107 1230 112 1280 110 V132 Z"/>
+    <g transform="translate(-150 3)">
+    <path class="trail" d="M880 102 C850 114 818 99 782 108 C748 117 722 104 690 112"/>
+    <circle class="spray" cx="694" cy="106" r="1.8"/><circle class="spray" cx="700" cy="102" r="1.3"/><circle class="spray" cx="707" cy="105" r="1"/>
+    <rect class="board" x="668" y="109" width="26" height="6.5" rx="3.25" transform="rotate(-10 681 112)"/>
+    </g>
+  </svg>
+</header>
+
+<main>
+  <div class="wrap">
+    <p class="demo" id="demo" hidden><span data-t="demo"></span></p>
+
+    <form id="form" class="wrap" novalidate>
+      <p class="reqnote" data-t="reqNote">* Required</p>
+      <section>
+        <h2><span class="n">01</span><span data-t="s1">About you</span></h2>
+        <div class="grid2">
+          <div class="field" id="f-email"><label for="email" data-t="email" data-req>Email</label><input id="email" type="email" autocomplete="email" required></div>
+          <div class="field" id="f-phone"><label for="phone" data-t="phone" data-req>Phone number</label><input id="phone" type="tel" autocomplete="tel" inputmode="tel" required></div>
+        </div>
+        <div class="grid2">
+          <div class="field" id="f-name"><label for="name" data-t="name" data-req>Full name</label><input id="name" autocomplete="name" required></div>
+          <div class="field"><label for="age" data-t="age" data-req>Age</label><input id="age" type="number" inputmode="numeric" min="3" max="99" required></div>
+        </div>
+        <div class="field" id="guardian-wrap" hidden>
+          <label for="guardian" data-t="guardian" data-req>Parent or guardian name &amp; phone</label>
+          <input id="guardian" data-tp="guardianPh">
+        </div>
+      </section>
+
+      <section>
+        <h2><span class="n">02</span><span data-t="s2" data-req>Riding level</span></h2>
+        <div class="field interest-only">
+          <span class="label" id="sport-label" data-t="sport" data-req>Snowboard or ski?</span>
+          <div class="choices" role="radiogroup" aria-labelledby="sport-label">
+            <label class="choice"><input type="radio" name="sport" value="snowboard" id="sport-sb"><span data-t="sportSb">Snowboard</span></label>
+            <label class="choice"><input type="radio" name="sport" value="ski" id="sport-ski"><span data-t="sportSki">Ski</span></label>
+          </div>
+          <p class="hint" id="ski-note" style="margin:0" data-t="skiNote" hidden></p>
+        </div>
+        <div class="field interest-only" id="coach-wrap">
+          <span class="label" id="coach-label" data-t="coach" data-req>Who would you like to ride with?</span>
+          <div class="choices" role="radiogroup" aria-labelledby="coach-label">
+            <label class="choice"><input type="radio" name="coach" value="aaron" id="coach-aaron">
+              <span><span><span data-t="coachA">Just Aaron</span><small data-t="coachAS">I'd rather wait for a spot with you</small></span></span></label>
+            <label class="choice"><input type="radio" name="coach" value="any" id="coach-any">
+              <span><span><span data-t="coachB">Anyone on the team</span><small data-t="coachBS">Happy to ride with another coach you trust</small></span></span></label>
+          </div>
+        </div>
+        <div class="choices" role="radiogroup" aria-label="Riding level">
+          <label class="choice"><input type="radio" name="level" value="Newbie" id="lvl-new">
+            <span><i class="sym"><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="8.5" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/></svg></i>
+            <span><span data-t="lvNew">Newbie</span><small data-t="lvNewS">First time or brand new</small></span></span></label>
+          <label class="choice"><input type="radio" name="level" value="Green" id="lvl-green">
+            <span><i class="sym"><svg viewBox="0 0 22 22"><circle cx="11" cy="11" r="9" style="fill:var(--green)"/></svg></i>
+            <span><span data-t="lvGreen">Green</span><small data-t="lvGreenS">Comfortable on greens</small></span></span></label>
+          <label class="choice"><input type="radio" name="level" value="Blue" id="lvl-blue">
+            <span><i class="sym"><svg viewBox="0 0 22 22"><rect x="3" y="3" width="16" height="16" style="fill:var(--blue)"/></svg></i>
+            <span><span data-t="lvBlue">Blue</span><small data-t="lvBlueS">Comfortable on blues</small></span></span></label>
+          <label class="choice"><input type="radio" name="level" value="Black" id="lvl-black">
+            <span><i class="sym"><svg viewBox="0 0 22 22"><rect x="5" y="5" width="12" height="12" transform="rotate(45 11 11)" style="fill:var(--black)"/></svg></i>
+            <span><span data-t="lvBlack">Black</span><small data-t="lvBlackS">Comfortable on blacks</small></span></span></label>
+        </div>
+        <div class="field interest-only"><label for="goal" data-t="goal" data-req>What's your goal for the season? What do you want to learn?</label>
+          <textarea id="goal" data-tp="goalPh"></textarea></div>
+      </section>
+
+      <section class="book-only">
+        <h2><span class="n">03</span><span data-t="s3">Your lesson</span></h2>
+        <div class="field">
+          <label for="language" data-t="language" data-req>Preferred lesson language</label>
+          <select id="language" required>
+            <option value="" data-t="choose">Choose…</option>
+            <option value="English">English</option>
+            <option value="中文 Mandarin">中文 (Mandarin)</option>
+            <option value="__other" data-t="other">Other…</option>
+          </select>
+        </div>
+        <div class="field" id="lang-other-wrap" hidden><label for="lang-other" data-t="whichLang">Which language?</label><input id="lang-other"></div>
+        <div class="field">
+          <span class="label" id="size-label" data-t="size" data-req>Lesson size</span>
+          <div class="choices" role="radiogroup" aria-labelledby="size-label" id="sizes"></div>
+          <p class="hint" style="margin:0" data-t="sizeHint">Prices are in USD, per 2-hour lesson. Your $30 deposit comes off the total.</p>
+        </div>
+        <div class="field" id="others-wrap" hidden>
+          <label for="others" id="others-label" data-t="others">Other riders: name, age and level for each</label>
+          <textarea id="others"></textarea>
+        </div>
+      </section>
+
+      <section class="book-only">
+        <h2><span class="n">04</span><span data-t="s4">Pick a time</span></h2>
+        <p class="hint" data-t="calHint">Dates with a dot have open lessons. Tap a date, then a time.</p>
+        <div class="cal" id="cal"><div class="empty" data-t="loading">Loading open times…</div></div>
+        <div class="field" id="mtn-wrap" hidden>
+          <span class="label" id="mtn-label" data-t="mountain" data-req>Which mountain?</span>
+          <div class="choices" role="radiogroup" aria-labelledby="mtn-label" id="mountains"></div>
+        </div>
+        <p class="fixed" id="mtn-fixed" hidden></p>
+      </section>
+
+      <section class="book-only">
+        <h2><span class="n">05</span><span data-t="s5">Deposit</span></h2>
+        <div class="pay-box">
+          <span data-t="payLine">Send the $30 deposit by Venmo or Zelle to:</span>
+          <div class="pay"><code id="pay-num">(909) 527-0222</code><button type="button" class="copy" id="copy" data-t="copy">Copy number</button></div>
+          <span class="note" data-t="depNote"></span>
+          <span class="note" data-t="policy"></span>
+          <span style="color:var(--muted);font-size:14px" data-t="payNote">Put your name and lesson date in the payment note, then upload a screenshot of the payment below.</span>
+        </div>
+        <div class="field">
+          <span class="label" data-t="shot" data-req>Deposit screenshot</span>
+          <div class="upload" id="upload">
+            <img id="shot-thumb" alt="" hidden>
+            <span class="fname" id="shot-name" data-t="shotNone">No screenshot added yet</span>
+            <button type="button" class="pick" id="shot-pick" data-t="shotPick">Choose screenshot</button>
+            <input type="file" id="shot" accept="image/*,.heic,.heif" tabindex="-1" aria-hidden="true">
+          </div>
+        </div>
+      </section>
+
+      <section class="book-only">
+        <h2><span class="n">06</span><span data-t="s6">Before your lesson</span></h2>
+        <div class="field"><label for="notes"><span data-t="notes">Anything I should know before the lesson?</span> <span class="opt" data-t="optional">(optional)</span></label>
+          <textarea id="notes" data-tp="notesPh"></textarea></div>
+      </section>
+
+      <section>
+        <p class="err" id="err" role="alert" hidden></p>
+        <button class="submit" id="submit" type="submit" data-t="submit">Submit booking</button>
+        <p class="picked book-only" id="picked"></p>
+        <p class="lead interest-only" data-t="interestNote"></p>
+      </section>
+    </form>
+
+    <div class="done" id="done" hidden>
+      <h2 data-t="doneTitle">Booking received</h2>
+      <p style="margin:0" data-t="doneBody">I've got your request and deposit screenshot, and a copy is on its way to your email. I'll confirm your lesson by email once I verify the deposit.</p>
+      <dl class="ticket book-only">
+        <div><dt data-t="tWhen">When</dt><dd id="t-when"></dd></div>
+        <div><dt data-t="tWhere">Where</dt><dd id="t-where"></dd></div>
+        <div><dt data-t="tLesson">Lesson</dt><dd id="t-size"></dd></div>
+        <div><dt data-t="tPrice">Price</dt><dd id="t-price"></dd></div>
+        <div><dt data-t="tId">Booking</dt><dd id="t-id"></dd></div>
+      </dl>
+      <button type="button" class="copy book-only" id="again" style="justify-self:start" data-t="again">Book another lesson</button>
+    </div>
+    <section class="contact" id="contact">
+      <h2 data-t="cTitle">Let's stay in touch</h2>
+      <p data-t="cBody"></p>
+      <div class="qr-grid">
+        <figure class="qr">
+          <img src="data:image/png;base64,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" alt="Instagram QR code for @tai_law.0204">
+          <figcaption><b>Instagram</b><a href="https://www.instagram.com/tai_law.0204/" target="_blank" rel="noopener">@tai_law.0204</a></figcaption>
+        </figure>
+        <figure class="qr">
+          <img src="data:image/png;base64,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" alt="WeChat QR code to add Aaron">
+          <figcaption><b data-t="wechat">WeChat</b><span data-t="wcHint">Scan to add me</span></figcaption>
+        </figure>
+      </div>
+      <p class="tip" data-t="cTip"></p>
+    </section>
+  </div>
+</main>
+<div class="modal" id="ski-modal" role="dialog" aria-modal="true" aria-labelledby="ski-title" hidden>
+  <div class="modal-card">
+    <h3 id="ski-title" data-t="skiTitle">Looking for a ski coach?</h3>
+    <p data-t="skiBody">Heads up: I only teach snowboarding.</p>
+    <div class="modal-btns">
+      <button type="button" class="btn-main" id="ski-yes" data-t="skiYes">Yes, find me a ski coach</button>
+      <button type="button" class="btn-ghost" id="ski-no" data-t="skiNo">Oops, I meant snowboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Connects this page to the Google Sheet through the Apps Script web app, without any Google sign-in. */
+window.SNOW_API = 'https://script.google.com/macros/s/AKfycbyC2KKMQKserMSrpAzQeYczklMLjy4PNjcU_0-oIExPhCFdxTMevYnLO_YWd15AGkaeNw/exec';
+(function () {
+  if (window.google && google.script && google.script.run) return;
+  function call(fn, args, ok, fail) {
+    var go = function (n) {
+      fetch(window.SNOW_API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args }) })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (j) { if (j.ok) { if (ok) ok(j.result); } else if (fail) fail(new Error(j.error || 'ERR_other')); })
+        .catch(function (e) { if (n > 0 && fn === 'getPageData') setTimeout(function () { go(n - 1); }, 1200); else if (fail) fail(e); });
+    };
+    go(1);
+  }
+  function runner(ok, fail) {
+    return {
+      withSuccessHandler: function (f) { return runner(f, fail); },
+      withFailureHandler: function (f) { return runner(ok, f); },
+      getPageData: function () { call('getPageData', [], ok, fail); },
+      submitBooking: function (a) { call('submitBooking', [a], ok, fail); },
+      submitInterest: function (a) { call('submitInterest', [a], ok, fail); },
+    };
+  }
+  window.google = { script: { run: runner(null, null) } };
+})();
+</script>
+<script>
+(function () {
+  var T = {
+    en: {
+      titleI: 'Wanna level up this season?', submitI: 'I\'m interested!', interestNote: 'No deposit and no commitment yet. The mountains aren\'t open, so this just lets me know you\'re keen. Once dates are set, I\'ll send you the booking form so you can grab a time.', cTitle: 'Let\'s stay in touch', cBody: 'Add me on Instagram or WeChat. DM me anytime to book a lesson!', cTip: 'On your phone? Screenshot a code and scan it from your photos.', wechat: 'WeChat', wcHint: 'Scan to add me', skiTitle: 'Looking for a ski coach?', skiBody: 'Heads up: I only teach snowboarding, so I won\'t be your instructor for skiing. But I know some great ski instructors! Keep filling this out and I\'ll connect you with one of them. They\'ll reach out to you directly.', skiYes: 'Yes, find me a ski coach', skiNo: 'Oops, I meant snowboard', coach: 'Who would you like to ride with?', coachA: 'Just {first}', coachAS: 'I\'d rather wait for a spot with you', coachB: 'Anyone on the team', coachBS: 'Happy to ride with another coach you trust', e_coach: 'Let me know who you\'d like to ride with.', sport: 'Snowboard or ski?', sportSb: 'Snowboard', sportSki: 'Ski', skiNote: 'Got it! I only teach snowboarding, so I\'ll connect you with one of the great ski instructors I know.', e_sport: 'Snowboard or ski?', goal: 'Tell me about yourself! Let me know your current level or your goals for this season.', goalPh: 'e.g. I\'ve ridden 5 days and can do greens, but I keep catching edges. This season I want to link my turns on blues…', e_goal: 'Tell me a little about yourself!', doneTitleI: 'Sweet, you\'re on the list!', doneBodyI: 'Thanks! I sent a copy to your email. As soon as the mountains open and dates are set, I\'ll send you the booking link. Can\'t wait to ride with you!', pvInterest: 'Interest form', pvBook: 'Booking form',
+      eyebrow: 'Snowboard lessons with {first}', intro: 'Hey, I\'m {first}! I\'ve been teaching snowboarding for 6 years, in English or 中文. My lessons are chill and fun. First time on a board? Want to finally link those turns on blues? Let\'s do it together.', title: 'Let\'s book your lesson!', fact1: '2-hour lessons', fact3: '${d} deposit holds your spot',
+      demo: 'Preview only. Sign-ups made here aren\'t saved.',
+      s1: 'How do I reach you?', email: 'Email', phone: 'Phone number', name: 'Your name', age: 'Age',
+      guardian: 'Parent or guardian name & phone', guardianPh: 'Needed if you\'re under 18',
+      s2: 'Your riding level', lvNew: 'Newbie', lvNewS: 'Never ridden, or only tried once or twice', lvGreen: 'Green', lvGreenS: 'Can get down greens, still working on turns',
+      lvBlue: 'Blue', lvBlueS: 'Link turns on blues and ride lifts on my own', lvBlack: 'Black', lvBlackS: 'Ride blacks with control, want cleaner technique',
+      s3: 'Your lesson', language: 'What language should I teach in?', choose: 'Choose…', other: 'Other…', whichLang: 'Which language?',
+      size: 'How many riders?', perLesson: 'per lesson', perPerson: 'per person', sizeHint: 'Prices are in USD, per {h}-hour lesson. Your ${d} deposit comes off the total.', group: 'Group', groupS: '4 or more of you', groupP: 'We\'ll figure out the price together',
+      s11: '1-on-1', s12: '1-on-2', s13: '1-on-3', s11S: 'Just you', s12S: 'You + 1 friend', s13S: 'You + 2 friends',
+      others: 'Who\'s coming? Name, age and level for each', othersGroup: 'Tell me about your crew: how many people, plus names, ages and levels if you know them',
+      s4: 'Pick a time', calHint: 'Dates marked with a dot are open. Tap a date, then pick a time.', loading: 'Loading open times…',
+      none: 'Nothing open right now. I add more times through the season, so check back soon!',
+      loadFail: 'Couldn\'t load the times. Try refreshing the page.', either: 'Either mountain',
+      mountain: 'Which mountain?', fixedAt: 'This one\'s at {m}.',
+      s5: 'Deposit', policy: 'Need to reschedule? Please let me know at least 1 week before your lesson. If the snow is bad and I decide it\'s not good for a lesson, you can reschedule for free or get a full refund.', depNote: 'The ${d} deposit holds your spot. It comes off your lesson fee, and you pay the rest after the lesson.', payLine: 'Send the ${d} deposit by Venmo or Zelle to:', copy: 'Copy number', copied: 'Copied', selected: 'Selected, press copy',
+      payNote: 'In the Venmo/Zelle payment note, write your name and lesson date. Then upload a screenshot of the payment below.',
+      shot: 'Payment screenshot', shotNone: 'No screenshot yet', shotPick: 'Choose screenshot', shotChange: 'Change',
+      s6: 'Anything else?', notes: 'Anything I should know before we ride?', optional: '(optional)',
+      notesPh: 'Goals, old injuries, anything else…',
+      submit: 'Book it!', sending: 'Sending…', pickFirst: 'Pick a time first.',
+      doneTitle: 'Got your booking!', doneBody: 'Thanks! I\'ve got your request and deposit screenshot, and a copy is in your email. Once I see the deposit come through, I\'ll send you a confirmation. See you on the mountain!',
+      tWhen: 'When', tWhere: 'Where', tLesson: 'Lesson', tPrice: 'Price', tId: 'Booking', again: 'Book another one', discuss: 'To be discussed',
+      e_email: 'Hmm, that email doesn\'t look right.', e_phone: 'Please add your phone number.', e_name: 'What should I call you?', reqNote: '* Required', e_age: 'Enter an age between 3 and 99.',
+      e_guardian: 'Under 18? Add a parent or guardian\'s name and phone.', e_level: 'Pick your level.',
+      e_language: 'Pick a lesson language.', e_size: 'How many of you are coming?', e_time: 'Pick a time first.',
+      e_mountain: 'Pick a mountain.', e_shot: 'Add a screenshot of your deposit payment.',
+      e_shot_big: 'That image is too large. Try a regular screenshot instead.', e_shot_type: 'Please choose an image file (a screenshot).',
+      e_taken: 'Oh no, someone just grabbed that time. Pick another one!', e_other: 'Something went wrong. Try again?',
+    },
+    zh: {
+      titleI: '這季想變更厲害嗎？', submitI: '我有興趣！', interestNote: '現在不用付訂金，也不用承諾什麼。雪場還沒開，先讓我知道你有興趣就好。日期確定後，我會把預約表傳給你，你再挑時間。', cTitle: '保持聯絡', cBody: '加我 Instagram 或微信，歡迎私訊我預約課程！', cTip: '用手機看的話，截圖後從相簿掃描就可以。', wechat: '微信', wcHint: '掃描加我好友', skiTitle: '想找雙板教練嗎？', skiBody: '先說一下：我只教單板，所以雙板沒辦法由我來教喔。不過我認識幾位很棒的雙板教練！照樣把表填完，我會幫你介紹，由他們直接跟你聯絡。', skiYes: '好，幫我找雙板教練', skiNo: '選錯了，我要單板', coach: '想跟誰上課？', coachA: '只想給 {first} 教', coachAS: '寧可等 {first} 有空', coachB: '其他教練也可以', coachBS: '{first} 推薦的教練都 OK', e_coach: '選一下你想跟誰上課。', sport: '你玩單板還是雙板？', sportSb: '單板', sportSki: '雙板', skiNote: '收到！我只教單板，會幫你介紹我認識的優秀雙板教練。', e_sport: '選一下單板還是雙板。', goal: '介紹一下自己吧！讓我知道你現在的程度，或這雪季的目標。', goalPh: '例如：我滑過 5 天，綠道可以下來但常常卡刃，這季想在藍道上連續轉彎…', e_goal: '介紹一下自己吧！', doneTitleI: '收到，你在名單上了！', doneBodyI: '謝啦！確認信已寄到你的信箱。等雪場開了、日期排好，我就把預約連結傳給你。期待跟你一起滑！', pvInterest: '登記表', pvBook: '預約表',
+      eyebrow: '{name} 單板教學', intro: '哈囉，我是 {first}！我有六年教學單板的經驗，我的課中英文都可以，很輕鬆、很好玩，就算是第一次滑雪也不用擔心！想在藍道上轉得更順嗎？那就一起來練習吧！', title: '來約一堂單板課吧！', fact1: '一堂 {h} 小時', fact3: '${d} 訂金保留名額',
+      demo: '這是預覽畫面，在這裡送出不會儲存。',
+      s1: '怎麼聯絡你？', email: '電子郵件（Email）', phone: '電話號碼', name: '怎麼稱呼你', age: '年齡',
+      guardian: '家長或監護人姓名和電話', guardianPh: '未滿 18 歲要填喔',
+      s2: '你現在的程度', lvNew: '新手', lvNewS: '完全沒滑過，或只滑過一兩次', lvGreen: '綠道', lvGreenS: '綠道可以滑下來，轉彎還在練',
+      lvBlue: '藍道', lvBlueS: '藍道可以連續轉彎，會自己搭纜車', lvBlack: '黑道', lvBlackS: '黑道滑得穩，想把技術修得更乾淨',
+      s3: '上課安排', language: '希望用什麼語言上課？', choose: '請選擇…', other: '其他…', whichLang: '哪一種語言？',
+      size: '幾個人一起上？', perLesson: '每堂', perPerson: '每人', sizeHint: '價格以美金（USD）計算，一堂 {h} 小時，${d} 訂金會從總價扣掉。', group: '團體課', groupS: '4 人以上', groupP: '價格我們再一起討論',
+      s11: '一對一', s12: '一對二', s13: '一對三', s11S: '只有你一位', s12S: '你和 1 位朋友', s13S: '你和 2 位朋友',
+      others: '還有誰要來？每個人的名字、年齡和程度', othersGroup: '介紹一下你們這團：幾個人？知道的話也寫名字、年齡和程度',
+      s4: '挑個時間', calHint: '標有圓點的日期可以預約，點一下日期再選時段。', loading: '正在載入可預約時段…',
+      none: '目前沒有空檔，雪季中會一直加時段，晚點再來看看！',
+      loadFail: '時段載不出來，重新整理一下試試。', either: '兩個雪場都可以',
+      mountain: '想在哪個雪場上課？', fixedAt: '這堂在 {m}。',
+      s5: '訂金', policy: '要改期的話，請在上課前一週通知我。如果雪況不好、教練判斷不適合上課，可以免費改期或全額退款。', depNote: '${d} 訂金是幫你保留名額，會從學費扣掉，剩下的上完課再付就好。', payLine: '請用 Venmo 或 Zelle 轉 ${d} 訂金到：', copy: '複製號碼', copied: '已複製', selected: '已選取，請按複製',
+      payNote: '轉帳時請在 Venmo/Zelle 的付款備註寫上你的名字和上課日期，再把付款截圖上傳到下面。',
+      shot: '付款截圖', shotNone: '還沒上傳截圖', shotPick: '選擇截圖', shotChange: '更換',
+      s6: '還有什麼想說的？', notes: '上課前有什麼想讓我知道的嗎？', optional: '（選填）',
+      notesPh: '想練什麼、舊傷，或其他想說的…',
+      submit: '送出預約！', sending: '送出中…', pickFirst: '先挑個時間吧。',
+      doneTitle: '收到你的預約了！', doneBody: '謝啦！預約和訂金截圖我都收到了，副本也寄到你的信箱。看到訂金入帳後，我會再傳確認信給你。雪場見！',
+      tWhen: '時間', tWhere: '地點', tLesson: '課程', tPrice: '價格', tId: '預約編號', again: '再約一堂', discuss: '確認後再討論',
+      e_email: '這個 Email 好像怪怪的。', e_phone: '請填寫電話號碼。', e_name: '要怎麼稱呼你呢？', reqNote: '* 為必填', e_age: '年齡請填 3 到 99。',
+      e_guardian: '未滿 18 歲的話，要填家長或監護人的名字和電話喔。', e_level: '選一下你的程度。',
+      e_language: '選一下上課語言。', e_size: '幾個人要來呢？', e_time: '先挑個時間吧。',
+      e_mountain: '選一下雪場。', e_shot: '記得上傳訂金的付款截圖。',
+      e_shot_big: '圖片太大，請改傳一般的手機截圖。', e_shot_type: '請選擇圖片檔（截圖）。',
+      e_taken: '哎呀，這個時段剛被別人搶走了，換一個吧！', e_other: '出了點狀況，再試一次？',
+    },
+  };
+  var MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var LIVE = typeof google !== 'undefined' && google.script && google.script.run;
+  var MODE = document.body.getAttribute('data-mode');
+  if (MODE !== 'interest' && MODE !== 'book') MODE = /interest/.test(location.hash) ? 'interest' : 'book';
+    var IS_I = MODE === 'interest';
+  if (IS_I) {
+    document.querySelector('h1').setAttribute('data-t', 'titleI');
+    document.getElementById('submit').setAttribute('data-t', 'submitI');
+    document.querySelector('#done h2').setAttribute('data-t', 'doneTitleI');
+    document.querySelector('#done p').setAttribute('data-t', 'doneBodyI');
+  }
+  if (IS_I) {
+    var g1 = document.getElementById('f-email').parentNode, g2 = document.getElementById('f-name').parentNode;
+    g1.insertBefore(document.getElementById('f-name'), document.getElementById('f-email'));
+    g2.insertBefore(document.getElementById('f-phone'), g2.firstChild);
+  }
+  document.querySelectorAll('.book-only').forEach(function (el) { el.hidden = IS_I; });
+  document.querySelectorAll('.interest-only').forEach(function (el) { el.hidden = !IS_I; });
+  var S = { ui: 'en', config: null, byDate: {}, months: [], mi: 0, day: null, key: null, mountain: '', size: '', shot: null, sending: false, loaded: false, loadFailed: false };
+  var $ = function (id) { return document.getElementById(id); };
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+
+  function t(k, vars) {
+    var s = (T[S.ui][k] != null ? T[S.ui][k] : T.en[k]) || '';
+    var c = S.config || {};
+    var v = Object.assign({ first: (c.instructor || 'Aaron Lin').split(' ')[0], name: c.instructor || 'Aaron Lin', h: c.hours || 2, d: c.deposit || 30 }, vars || {});
+    return s.replace(/\{(\w+)\}/g, function (_, n) { return v[n] != null ? v[n] : ''; });
+  }
+
+  function applyUi() {
+    document.documentElement.lang = S.ui === 'zh' ? 'zh-Hant' : 'en';
+    document.querySelectorAll('[data-t]').forEach(function (el) { el.textContent = t(el.getAttribute('data-t')); });
+    document.querySelectorAll('[data-tp]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-tp')); });
+    $('ui-en').setAttribute('aria-pressed', S.ui === 'en'); $('ui-zh').setAttribute('aria-pressed', S.ui === 'zh');
+    $('demo').hidden = !!LIVE;
+    renderSizes(); renderOthers(); renderCal(); renderMountain(); renderShot(); syncPicked();
+    var n = 0;
+    document.querySelectorAll('#form > section').forEach(function (sec) {
+      var el = sec.querySelector('h2 .n'); if (el && !sec.hidden) el.textContent = pad(++n);
+    });
+    if (!$('err').hidden && S.lastErr) showErr(S.lastErr);
+    if (!$('done').hidden && S.lastDone && !IS_I) renderDone(S.lastDone);
+  }
+  document.querySelectorAll('.langs button').forEach(function (b) {
+    b.onclick = function () { S.ui = b.getAttribute('data-ui'); try { localStorage.setItem('ui', S.ui); } catch (e) {} applyUi(); };
+  });
+
+  /* ---------- lesson size ---------- */
+  var SIZE_ORDER = [['1:1', 's11', 's11S'], ['1:2', 's12', 's12S'], ['1:3', 's13', 's13S'], ['group', 'group', 'groupS']];
+  function renderSizes() {
+    var box = $('sizes'); box.innerHTML = '';
+    var sizes = (S.config && S.config.sizes) || { '1:1': { price: 200 }, '1:2': { price: 300 }, '1:3': { price: 375 }, 'group': { price: null } };
+    SIZE_ORDER.forEach(function (o) {
+      var info = sizes[o[0]] || {};
+      var lab = document.createElement('label'); lab.className = 'choice size';
+      var inp = document.createElement('input'); inp.type = 'radio'; inp.name = 'size'; inp.value = o[0]; inp.id = 'size-' + o[0].replace(':', '');
+      inp.checked = S.size === o[0];
+      inp.onchange = function () { S.size = o[0]; renderOthers(); };
+      var card = document.createElement('span');
+      var left = document.createElement('span'); left.textContent = t(o[1]);
+      var sm = document.createElement('small'); sm.textContent = t(o[2]); left.append(sm);
+      var right = document.createElement('span'); right.className = 'price';
+      if (info.price) {
+        right.textContent = '$' + info.price + ' USD';
+        var per = document.createElement('small'); per.textContent = t('perLesson'); right.append(per);
+        var ppl = { '1:1': 1, '1:2': 2, '1:3': 3 }[o[0]] || 1;
+        var pp = document.createElement('small'); pp.className = 'pp';
+        pp.textContent = '$' + Math.round(info.price / ppl) + ' USD ' + t('perPerson'); right.append(pp);
+      } else {
+        right.classList.add('tbd'); right.textContent = t('groupP');
+      }
+      card.append(left, right); lab.append(inp, card); box.append(lab);
+    });
+  }
+  function renderOthers() {
+    var show = S.size && S.size !== '1:1';
+    $('others-wrap').hidden = !show;
+    $('others-label').textContent = t(S.size === 'group' ? 'othersGroup' : 'others');
+  }
+
+  /* ---------- calendar ---------- */
+  function fmtTime(h, m) {
+    var hours = (S.config && S.config.hours) || 2, end = h * 60 + m + hours * 60, eh = Math.floor(end / 60) % 24, em = end % 60;
+    if (S.ui === 'zh') return pad(h) + ':' + pad(m) + '–' + pad(eh) + ':' + pad(em);
+    var f = function (h, m) { return ((h % 12) || 12) + ':' + pad(m) + ' ' + (h >= 12 ? 'PM' : 'AM'); };
+    return f(h, m) + ' – ' + f(eh, em);
+  }
+  function fmtDate(ds, long) {
+    var p = ds.split('-').map(Number), d = new Date(p[0], p[1] - 1, p[2]);
+    return d.toLocaleDateString(S.ui === 'zh' ? 'zh-TW' : 'en-US',
+      long ? { weekday: 'long', month: 'long', day: 'numeric' } : { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+  function renderCal() {
+    var cal = $('cal'); cal.innerHTML = '';
+    var msg = function (k) { var d = document.createElement('div'); d.className = 'empty'; d.textContent = t(k); cal.append(d); };
+    if (S.loadFailed) return msg('loadFail');
+    if (!S.loaded) return msg('loading');
+    $('cal').previousElementSibling.hidden = !S.months.length;
+    if (!S.months.length) return msg('none');
+    var ym = S.months[S.mi].split('-').map(Number), y = ym[0], m = ym[1];
+    var head = document.createElement('div'); head.className = 'cal-head';
+    var title = document.createElement('strong');
+    title.textContent = S.ui === 'zh' ? y + '年' + m + '月' : MONTHS_EN[m - 1] + ' ' + y;
+    head.append(navBtn('‹', S.mi === 0, function () { S.mi--; renderCal(); }), title,
+      navBtn('›', S.mi === S.months.length - 1, function () { S.mi++; renderCal(); }));
+    cal.append(head);
+    var dow = document.createElement('div'); dow.className = 'dow';
+    (S.ui === 'zh' ? ['日','一','二','三','四','五','六'] : ['S','M','T','W','T','F','S']).forEach(function (ch) {
+      var s = document.createElement('span'); s.textContent = ch; dow.append(s);
+    });
+    cal.append(dow);
+    var days = document.createElement('div'); days.className = 'days';
+    var first = new Date(y, m - 1, 1).getDay(), count = new Date(y, m, 0).getDate();
+    for (var i = 0; i < first; i++) days.append(document.createElement('span'));
+    for (var d = 1; d <= count; d++) {
+      var ds = y + '-' + pad(m) + '-' + pad(d);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'day'; b.textContent = d;
+      if (S.byDate[ds]) {
+        b.classList.add('open'); b.setAttribute('aria-label', fmtDate(ds, true));
+        if (S.day === ds) b.classList.add('sel');
+        b.onclick = (function (ds) { return function () { S.day = ds; S.key = null; renderCal(); renderMountain(); syncPicked(); }; })(ds);
+      } else { b.disabled = true; }
+      days.append(b);
+    }
+    cal.append(days);
+    if (S.day && S.day.slice(0, 7) === S.months[S.mi]) {
+      var box = document.createElement('div'); box.className = 'times';
+      var lbl = document.createElement('div'); lbl.className = 'times-title'; lbl.textContent = fmtDate(S.day, true);
+      box.append(lbl);
+      S.byDate[S.day].forEach(function (s) {
+        var tb = document.createElement('button'); tb.type = 'button'; tb.className = 'time';
+        tb.setAttribute('aria-pressed', S.key === s.key ? 'true' : 'false');
+        var a = document.createElement('span'); a.textContent = fmtTime(s.h, s.m);
+        var sm = document.createElement('small'); sm.textContent = s.mountain || t('either');
+        tb.append(a, sm);
+        tb.onclick = function () { S.key = s.key; renderCal(); renderMountain(); syncPicked(); };
+        box.append(tb);
+      });
+      cal.append(box);
+    }
+  }
+  function navBtn(txt, dis, fn) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'nav'; b.textContent = txt;
+    b.setAttribute('aria-label', txt === '‹' ? 'Previous month' : 'Next month'); b.disabled = dis; b.onclick = fn; return b;
+  }
+  function chosen() {
+    if (!S.key || !S.day) return null;
+    return (S.byDate[S.day] || []).filter(function (s) { return s.key === S.key; })[0] || null;
+  }
+  function renderMountain() {
+    var c = chosen(), mts = (S.config && S.config.mountains) || [];
+    $('mtn-wrap').hidden = !c || !!c.mountain;
+    $('mtn-fixed').hidden = !c || !c.mountain;
+    if (c && c.mountain) { $('mtn-fixed').textContent = t('fixedAt', { m: c.mountain }); return; }
+    var box = $('mountains'); box.innerHTML = '';
+    mts.forEach(function (m, i) {
+      var lab = document.createElement('label'); lab.className = 'choice';
+      var inp = document.createElement('input'); inp.type = 'radio'; inp.name = 'mountain'; inp.value = m; inp.id = 'mtn-' + i;
+      inp.checked = S.mountain === m; inp.onchange = function () { S.mountain = m; syncPicked(); };
+      var card = document.createElement('span'); card.textContent = m;
+      lab.append(inp, card); box.append(lab);
+    });
+  }
+  function mountainOf() { var c = chosen(); return c ? (c.mountain || S.mountain) : ''; }
+  function syncPicked() {
+    var c = chosen();
+    $('picked').textContent = c ? fmtDate(c.date) + ', ' + fmtTime(c.h, c.m) + (mountainOf() ? ' · ' + mountainOf() : '') : t('pickFirst');
+  }
+
+  /* ---------- screenshot ---------- */
+  $('shot-pick').onclick = function () { $('shot').click(); };
+  $('shot').onchange = function () {
+    var file = this.files && this.files[0]; this.value = '';
+    if (!file) return;
+    if (!/^image\//.test(file.type) && !/\.(heic|heif)$/i.test(file.name)) { showErr(t('e_shot_type')); return; }
+    prepareShot(file).then(function (shot) { S.shot = shot; showErr(''); renderShot(); })
+      .catch(function (code) { showErr(t(code === 'big' ? 'e_shot_big' : 'e_shot_type')); });
+  };
+  function prepareShot(file) {
+    var readRaw = function () {
+      return new Promise(function (res, rej) {
+        if (file.size > 9.5 * 1024 * 1024) return rej('big');
+        var r = new FileReader();
+        r.onload = function () { res({ data: String(r.result).split(',')[1], type: file.type || 'image/heic', name: file.name, preview: null }); };
+        r.onerror = function () { rej('type'); }; r.readAsDataURL(file);
+      });
+    };
+    if (!window.createImageBitmap) return readRaw();
+    return createImageBitmap(file).then(function (bmp) {
+      var max = 1600, sc = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      var cv = document.createElement('canvas'); cv.width = Math.round(bmp.width * sc); cv.height = Math.round(bmp.height * sc);
+      cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+      var url = cv.toDataURL('image/jpeg', 0.85);
+      return { data: url.split(',')[1], type: 'image/jpeg', name: file.name, preview: url };
+    }, readRaw);
+  }
+  function renderShot() {
+    var has = !!S.shot;
+    $('upload').classList.toggle('has', has);
+    $('shot-thumb').hidden = !(has && S.shot.preview);
+    if (has && S.shot.preview) $('shot-thumb').src = S.shot.preview;
+    $('shot-name').textContent = has ? S.shot.name : t('shotNone');
+    $('shot-pick').textContent = t(has ? 'shotChange' : 'shotPick');
+  }
+
+  /* ---------- load ---------- */
+  function demoData() {
+    var slots = [], d = new Date(); d.setHours(0, 0, 0, 0);
+    for (var i = 1; slots.length < 14 && i < 70; i++) {
+      var x = new Date(d); x.setDate(d.getDate() + i);
+      if (x.getDay() === 6 || x.getDay() === 0) {
+        var ds = x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate());
+        [[10, 0], [14, 0]].forEach(function (t) {
+          slots.push({ key: ds + ' ' + pad(t[0]) + ':00', date: ds, h: t[0], m: 0, mountain: x.getDay() === 6 ? 'Crystal Mountain' : '' });
+        });
+      }
+    }
+    return {
+      config: {
+        instructor: 'Aaron Lin', hours: 2, deposit: 30, payPhone: '(909) 527-0222',
+        mountains: ['Crystal Mountain', 'Summit at Snoqualmie'],
+        sizes: { '1:1': { price: 200 }, '1:2': { price: 300 }, '1:3': { price: 375 }, 'group': { price: null } },
+      }, slots: slots,
+    };
+  }
+  function load() {
+    S.loaded = false; S.loadFailed = false; renderCal();
+    if (LIVE) google.script.run.withSuccessHandler(init).withFailureHandler(function () { S.loadFailed = true; renderCal(); }).getPageData();
+    else init(demoData());
+  }
+  function init(data) {
+    S.config = data.config; S.byDate = {}; S.months = [];
+    data.slots.forEach(function (s) {
+      (S.byDate[s.date] = S.byDate[s.date] || []).push(s);
+      var m = s.date.slice(0, 7); if (S.months.indexOf(m) < 0) S.months.push(m);
+    });
+    S.months.sort(); S.mi = 0; S.day = null; S.key = null; S.loaded = true;
+    $('pay-num').textContent = data.config.payPhone;
+    applyUi();
+  }
+
+  /* ---------- form ---------- */
+  $('age').addEventListener('input', function () { var a = parseInt(this.value, 10); $('guardian-wrap').hidden = !(a > 0 && a < 18); });
+  function syncSport() {
+    var sp = document.querySelector('input[name="sport"]:checked'), ski = !!sp && sp.value === 'ski';
+    $('ski-note').hidden = !ski; $('coach-wrap').hidden = ski;
+  }
+  function closeSki() { $('ski-modal').hidden = true; document.body.style.overflow = ''; }
+  document.querySelectorAll('input[name="sport"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      syncSport();
+      if (this.value === 'ski') { $('ski-modal').hidden = false; document.body.style.overflow = 'hidden'; $('ski-yes').focus(); }
+    });
+  });
+  $('ski-yes').onclick = function () { closeSki(); $('sport-ski').focus(); };
+  $('ski-no').onclick = function () { $('sport-sb').checked = true; syncSport(); closeSki(); $('sport-sb').focus(); };
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('ski-modal').hidden) $('ski-yes').click(); });
+  $('language').addEventListener('change', function () { $('lang-other-wrap').hidden = this.value !== '__other'; });
+  function showErr(msg) { S.lastErr = msg ? msg : null; $('err').textContent = msg || ''; $('err').hidden = !msg; }
+  function setSending(on) { S.sending = on; $('submit').disabled = on; $('submit').textContent = t(on ? 'sending' : (IS_I ? 'submitI' : 'submit')); }
+
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (S.sending) return;
+    var lvl = document.querySelector('input[name="level"]:checked');
+    var lang = $('language').value === '__other' ? $('lang-other').value.trim() : $('language').value;
+    var age = parseInt($('age').value, 10);
+    var f = {
+      ui: S.ui, email: $('email').value.trim(), phone: $('phone').value.trim(), name: $('name').value.trim(), age: $('age').value,
+      guardian: $('guardian').value.trim(), level: lvl ? lvl.value : '', language: lang, size: S.size,
+      others: $('others').value.trim(), slotKey: S.key, mountain: mountainOf(), notes: $('notes').value.trim(),
+      shot: S.shot ? { data: S.shot.data, type: S.shot.type } : null,
+    };
+    var sp = document.querySelector('input[name="sport"]:checked');
+    if (IS_I) { f = { ui: S.ui, name: f.name, email: f.email, phone: f.phone, age: f.age, guardian: f.guardian, sport: sp ? sp.value : '', coach: (document.querySelector('input[name="coach"]:checked') || {}).value || '', level: f.level, goal: $('goal').value.trim() }; }
+    var code = IS_I ? (!f.name ? 'name' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? 'email' : f.phone.replace(/\D/g, '').length < 7 ? 'phone' :
+      !(age >= 3 && age <= 99) ? 'age' : (age < 18 && !f.guardian) ? 'guardian' : !f.sport ? 'sport' : (f.sport === 'snowboard' && !f.coach) ? 'coach' : !f.level ? 'level' : !f.goal ? 'goal' : '') : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? 'email' : f.phone.replace(/\D/g, '').length < 7 ? 'phone' : !f.name ? 'name' :
+      !(age >= 3 && age <= 99) ? 'age' : (age < 18 && !f.guardian) ? 'guardian' : !f.level ? 'level' :
+      !f.language ? 'language' : !f.size ? 'size' :
+      !chosen() ? 'time' : !f.mountain ? 'mountain' : !f.shot ? 'shot' : '';
+    if (code) { showErr(t('e_' + code)); return; }
+    showErr(''); setSending(true);
+
+    var ok = function (res) { setSending(false); S.lastDone = res; renderDone(res); $('form').hidden = true; $('done').hidden = false; window.scrollTo(0, 0); };
+    var fail = function (err) {
+      setSending(false);
+      var m = /ERR_(\w+)/.exec((err && err.message) || '');
+      showErr(t(m && T.en['e_' + m[1]] ? 'e_' + m[1] : 'e_other'));
+      if (m && m[1] === 'taken') load();
+    };
+    if (IS_I) {
+      var okI = function () { setSending(false); $('form').hidden = true; $('done').hidden = false; window.scrollTo(0, 0); };
+      if (LIVE) google.script.run.withSuccessHandler(okI).withFailureHandler(fail).submitInterest(f);
+      else setTimeout(okI, 400);
+    } else if (LIVE) google.script.run.withSuccessHandler(ok).withFailureHandler(fail).submitBooking(f);
+    else {
+      var c = chosen(), price = S.config.sizes[S.size].price;
+      setTimeout(function () { ok({ id: 'SB-DEMO-1', when: fmtDate(c.date) + ', ' + fmtTime(c.h, c.m), mountain: f.mountain, sizeKey: S.size, price: price }); }, 500);
+    }
+  });
+  function renderDone(res) {
+    $('t-when').textContent = res.when; $('t-where').textContent = res.mountain; $('t-id').textContent = res.id;
+    var o = SIZE_ORDER.filter(function (x) { return x[0] === (res.sizeKey || S.size); })[0];
+    $('t-size').textContent = o ? t(o[1]) : (res.size || '');
+    $('t-price').textContent = res.price ? '$' + res.price + ' USD' : t('discuss');
+  }
+
+  $('copy').addEventListener('click', function () {
+    var btn = this, num = $('pay-num').textContent.replace(/\D/g, '');
+    var done = function () { btn.textContent = t('copied'); setTimeout(function () { btn.textContent = t('copy'); }, 1600); };
+    var fallback = function () {
+      var r = document.createRange(); r.selectNodeContents($('pay-num'));
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); btn.textContent = t('selected');
+    };
+    try { navigator.clipboard.writeText(num).then(done, fallback); } catch (e) { fallback(); }
+  });
+  $('again').addEventListener('click', function () {
+    $('done').hidden = true; $('form').hidden = false; $('form').reset(); S.lastDone = null;
+    S.size = ''; S.mountain = ''; S.shot = null;
+    $('guardian-wrap').hidden = true; $('lang-other-wrap').hidden = true; load();
+  });
+
+  try { S.ui = localStorage.getItem('ui') || ''; } catch (e) { S.ui = ''; }
+  if (S.ui !== 'en' && S.ui !== 'zh') S.ui = /^zh/i.test(navigator.language || '') ? 'zh' : 'en';
+  applyUi();
+  load();
+})();
+</script>
+</body>
+</html>
