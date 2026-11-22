@@ -147,6 +147,14 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { border-color
 .pay-box .note { border-top: 1px solid var(--line); padding-top: 10px; font-size: 14px; }
 .pay { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .pay code { font: 700 26px/1 var(--display); letter-spacing: .04em; user-select: all; font-variant-numeric: tabular-nums; }
+#riders { display: grid; gap: 10px; }
+.rider { border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; background: var(--surface); display: grid; gap: 10px; }
+.rider-h { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; }
+.rider-h button { background: none; border: 0; padding: 4px; color: var(--muted); font: 500 13px var(--body); text-decoration: underline; cursor: pointer; }
+.rgrid { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+.rgrid label { display: grid; gap: 5px; font-size: 13px; }
+.rgrid .lv { grid-column: 1 / -1; }
+.addrider { justify-self: start; border: 1.5px dashed var(--line); background: none; color: var(--ink); border-radius: 10px; padding: 9px 14px; font: 600 14px var(--body); cursor: pointer; }
 .copy { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 7px 12px; font: 600 14px var(--body); cursor: pointer; }
 .upload { border: 1.5px dashed var(--line); border-radius: 12px; background: var(--surface); padding: 14px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .upload img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
@@ -305,8 +313,9 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { border-color
         <div class="field" id="others-wrap" hidden>
           <p class="lead" id="crew-note" data-t="crewNote"></p>
           <p class="lead" id="group-note" data-t="groupNote" hidden></p>
-          <label for="others" id="others-label" data-t="others">Other riders: name, age and level for each</label>
-          <textarea id="others"></textarea>
+          <span class="label" id="others-label" data-t="others" data-req>Who else is coming?</span>
+          <div id="riders"></div>
+          <button type="button" class="addrider" id="add-rider" data-t="addRider" hidden>+ Add a rider</button>
         </div>
         <div class="field">
           <span class="label" id="ticket-label" data-t="ticket" data-req>Lift ticket</span>
@@ -442,11 +451,12 @@ window.SNOW_API = 'https://script.google.com/macros/s/AKfycbyC2KKMQKserMSrpAzQeY
       lvBlue: 'Blue', lvBlueS: 'Link turns on blues and ride lifts on my own', lvBlack: 'Black', lvBlackS: 'Ride blacks with control, want cleaner technique',
       s3: 'Your lesson', language: 'What language should I teach in?', choose: 'Choose…', other: 'Other…', whichLang: 'Which language?',
       size: 'How many riders?', perLesson: 'per lesson', perPerson: 'per person', sizeHint: 'Prices are in USD, per {h}-hour lesson. Travel and lift tickets aren\'t included.', group: 'Group', groupS: '4 or more of you', groupP: 'Price depends on group size',
-      crewNote: 'Heads up: for 1-on-2 and 1-on-3, you bring your own crew. I don\'t match you with other students. It works best when everyone\'s at the same or a similar level.',
+      crewNote: 'Heads up: for 1-on-2 and 1-on-3, you bring your own crew. I don\'t match you with other students. It works best when everyone\'s at the same or a similar level. One ${d} deposit covers the whole lesson, so only you need to pay it.',
       groupNote: 'Groups bring their own crew, ideally at the same or a similar level. No deposit needed for groups: the price depends on your group size, and I\'ll reach out about it after you book.',
       ticket: 'What lift ticket will you use?', tkIkon: 'Ikon Pass', tkIkonS: 'I have an Ikon Pass', tkDaily: 'Daily lift ticket', tkDailyS: 'I\'ll buy my own', tkBuy: 'Buy one for me', tkBuyS: 'Please get my ticket', ticketHint: 'Lift tickets aren\'t included in the lesson price.', e_ticket: 'Let me know about your lift ticket.',
       s11: '1-on-1', s12: '1-on-2', s13: '1-on-3', s11S: 'Just you', s12S: 'You + 1 friend', s13S: 'You + 2 friends',
-      others: 'Who\'s coming? Name, age and level for each', othersGroup: 'Tell me about your crew: how many people, plus names, ages and levels if you know them',
+      others: 'Who else is coming?', othersGroup: 'Who\'s in your group?', riderN: 'Rider {n}', rName: 'Name', rAge: 'Age', rLevel: 'Riding level', addRider: '+ Add a rider', rRemove: 'Remove',
+      depOne: 'One ${d} deposit covers the whole lesson, so only you need to pay it.', e_riders: 'Fill in the name and age for each rider.',
       s4: 'Pick a time', calHint: 'Dates marked with a dot are open. Tap a date, then pick a time.', loading: 'Loading open times…',
       none: 'Nothing open right now. I add more times through the season, so check back soon!',
       loadFail: 'Couldn\'t load the times. Try refreshing the page.', either: 'Either mountain',
@@ -487,7 +497,8 @@ window.SNOW_API = 'https://script.google.com/macros/s/AKfycbyC2KKMQKserMSrpAzQeY
       groupNote: '團體課請自己找好同伴，程度相同或相近最好。團體課不用付訂金：價格依人數而定，預約後我會跟你聯絡討論。',
       ticket: '你會用哪種纜車票？', tkIkon: 'Ikon Pass', tkIkonS: '我有 Ikon Pass', tkDaily: '單日纜車票', tkDailyS: '我自己買', tkBuy: '請教練幫我買', tkBuyS: '麻煩幫我買票', ticketHint: '課程費用不包含纜車票。', e_ticket: '選一下你的纜車票。',
       s11: '一對一', s12: '一對二', s13: '一對三', s11S: '只有你一位', s12S: '你和 1 位朋友', s13S: '你和 2 位朋友',
-      others: '還有誰要來？每個人的名字、年齡和程度', othersGroup: '介紹一下你們這團：幾個人？知道的話也寫名字、年齡和程度',
+      others: '還有誰一起來？', othersGroup: '團體成員', riderN: '第 {n} 位', rName: '名字', rAge: '年齡', rLevel: '程度', addRider: '＋ 再加一位', rRemove: '移除',
+      depOne: '整堂課只需要付一筆 ${d} 訂金，由你付就好。', e_riders: '請填寫每一位同伴的名字和年齡。',
       s4: '挑個時間', calHint: '標有圓點的日期可以預約，點一下日期再選時段。', loading: '正在載入可預約時段…',
       none: '目前沒有空檔，雪季中會一直加時段，晚點再來看看！',
       loadFail: '時段載不出來，重新整理一下試試。', either: '兩個雪場都可以',
@@ -544,6 +555,8 @@ window.SNOW_API = 'https://script.google.com/macros/s/AKfycbyC2KKMQKserMSrpAzQeY
   });
   var S = { ui: 'en', config: null, byDate: {}, months: [], mi: 0, day: null, key: null, mountain: '', size: '', shot: null, sending: false, loaded: false, loadFailed: false };
   var $ = function (id) { return document.getElementById(id); };
+  $('add-rider').addEventListener('click', function () { S.riders.push({ name: '', age: '' }); renderRiders();
+    var c = $('riders').lastElementChild; if (c) c.querySelector('input').focus(); });
   var pad = function (n) { return (n < 10 ? '0' : '') + n; };
 
   function t(k, vars) {
@@ -602,11 +615,48 @@ window.SNOW_API = 'https://script.google.com/macros/s/AKfycbyC2KKMQKserMSrpAzQeY
     $('closed-note').hidden = !closed.length;
     $('closed-note').textContent = closed.length ? t('closedNote', { m: closed.join(', ') }) : '';
   }
+  function esc(x) { return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+  function ridersMin() { return S.size === '1:2' ? 1 : S.size === '1:3' ? 2 : S.size === 'group' ? 3 : 0; }
+  function renderRiders() {
+    if (!$('riders')) return;
+    S.riders = S.riders || [];
+    var min = ridersMin(), grp = S.size === 'group';
+    if (!grp) S.riders = S.riders.slice(0, min);
+    while (S.riders.length < min) S.riders.push({ name: '', age: '' });
+    var box = $('riders'); box.innerHTML = '';
+    S.riders.forEach(function (r, i) {
+      var card = document.createElement('div'); card.className = 'rider';
+      card.innerHTML = '<div class="rider-h"><span>' + esc(t('riderN', { n: i + 2 })) + '</span>' +
+        (grp && i >= min ? '<button type="button" data-rm="' + i + '">' + esc(t('rRemove')) + '</button>' : '') + '</div>' +
+        '<div class="rgrid"><label>' + esc(t('rName')) + '<input type="text" autocomplete="off" data-k="name"></label>' +
+        '<label>' + esc(t('rAge')) + '<input type="number" inputmode="numeric" min="3" max="99" data-k="age"></label></div>';
+      card.querySelector('[data-k="name"]').value = r.name;
+      card.querySelector('[data-k="age"]').value = r.age;
+      card.querySelectorAll('[data-k]').forEach(function (el) {
+        var h = function () { r[el.getAttribute('data-k')] = el.value; };
+        el.addEventListener('input', h); el.addEventListener('change', h);
+      });
+      var rm = card.querySelector('[data-rm]');
+      if (rm) rm.onclick = function () { S.riders.splice(i, 1); renderRiders(); };
+      box.appendChild(card);
+    });
+    $('add-rider').hidden = !grp;
+    $('add-rider').textContent = t('addRider');
+  }
+  function ridersText() {
+    return (S.riders || []).slice(0, S.size === 'group' ? 99 : ridersMin()).map(function (r) {
+      return r.name.trim() + ' (' + (S.ui === 'zh' ? '年齡 ' : 'age ') + r.age + ')'; }).join('; ');
+  }
+  function ridersOk() {
+    if (!S.size || S.size === '1:1') return true;
+    return (S.riders || []).every(function (r) { var a = parseInt(r.age, 10); return r.name.trim() && a >= 3 && a <= 99; });
+  }
   function renderOthers() {
     var show = S.size && S.size !== '1:1', grp = S.size === 'group';
     $('others-wrap').hidden = !show;
     $('crew-note').hidden = grp; $('group-note').hidden = !grp;
     $('others-label').textContent = t(grp ? 'othersGroup' : 'others');
+    renderRiders();
     if (!IS_I) $('sec-dep').hidden = RIDE !== 'snowboard' || grp;
     var n = 0;
     document.querySelectorAll('#form > section').forEach(function (sec) {
@@ -810,7 +860,7 @@ window.SNOW_API = 'https://script.google.com/macros/s/AKfycbyC2KKMQKserMSrpAzQeY
     var f = {
       ui: S.ui, email: $('email').value.trim(), phone: $('phone').value.trim(), name: $('name').value.trim(), age: $('age').value,
       guardian: $('guardian').value.trim(), level: lvl ? lvl.value : '', language: lang, size: S.size,
-      others: $('others').value.trim(), slotKey: S.key, mountain: mountainOf(), notes: $('notes').value.trim(),
+      others: S.size && S.size !== '1:1' ? ridersText() : '', slotKey: S.key, mountain: mountainOf(), notes: $('notes').value.trim(),
       shot: S.shot && S.size !== 'group' ? { data: S.shot.data, type: S.shot.type } : null,
       ticket: (document.querySelector('input[name="ticket"]:checked') || {}).value || '',
     };
@@ -819,7 +869,7 @@ window.SNOW_API = 'https://script.google.com/macros/s/AKfycbyC2KKMQKserMSrpAzQeY
     var code = IS_I ? (!f.name ? 'name' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? 'email' : f.phone.replace(/\D/g, '').length < 7 ? 'phone' :
       !(age >= 3 && age <= 99) ? 'age' : (age < 18 && !f.guardian) ? 'guardian' : !f.sport ? 'sport' : !f.level ? 'level' : !f.goal ? 'goal' : '') : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? 'email' : f.phone.replace(/\D/g, '').length < 7 ? 'phone' : !f.name ? 'name' :
       !(age >= 3 && age <= 99) ? 'age' : (age < 18 && !f.guardian) ? 'guardian' : !f.level ? 'level' :
-      !f.language ? 'language' : !f.size ? 'size' : !f.ticket ? 'ticket' :
+      !f.language ? 'language' : !f.size ? 'size' : !ridersOk() ? 'riders' : !f.ticket ? 'ticket' :
       !chosen() ? 'time' : !f.mountain ? 'mountain' : (!f.shot && f.size !== 'group') ? 'shot' : '';
     if (code) { showErr(t('e_' + code)); return; }
     showErr(''); setSending(true);
@@ -859,7 +909,7 @@ window.SNOW_API = 'https://script.google.com/macros/s/AKfycbyC2KKMQKserMSrpAzQeY
   });
   $('again').addEventListener('click', function () {
     $('done').hidden = true; $('form').hidden = false; $('form').reset(); S.lastDone = null;
-    S.size = ''; S.mountain = ''; S.shot = null;
+    S.size = ''; S.mountain = ''; S.shot = null; S.riders = [];
     if (RIDE) $(RIDE === 'ski' ? 'ride-ski' : 'ride-sb').checked = true;
     $('guardian-wrap').hidden = true; $('lang-other-wrap').hidden = true; load();
   });
